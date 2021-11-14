@@ -1,0 +1,27 @@
+
+<% layout('layout/boilerplate') %> 
+<h1>Here is edit user page</h1>
+  <form  action="/users/edit/<%=user._id%>?_method=PUT"method="POST" class="validated-form novalidate">
+        
+        <div class="mb-3">
+          <label class="form-label" for="name">نام و نام خانودگی شما</label><br>
+          <input class="form-control" type="text" name="name" id="name" value="<%=user.name %> " required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="role">دلیل ثبت نام خود را ذکر کنید <br/> آیا نانوا یا مالک نانوایی هستید؟<br/>
+            آیا می خواهید هدیه بدهید؟ <br/> 
+            آیا شما داوطلب کمک تکنینی به نانوایی ها یا به اشخصاص هستید؟<br/>
+           
+          </label><br>
+          <select name="role" id="role">
+            <option>نقش شما</option> 
+            <option  value="Volenteer" > داوطلب</option>
+            <option value="Donator" > هدیه دهنده</option>
+            <option value="Backer">نانوا</option>
+          </select>
+          
+<br><br>
+        
+        <button type="submit" class="button-success">ثبت تغییرات</button><br><br>
+      </form>

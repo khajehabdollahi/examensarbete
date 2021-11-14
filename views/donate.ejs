@@ -1,0 +1,26 @@
+<% layout('layout/boilerplate') %> 
+
+<h3>به صفحه هدیه دادن خوش آمدید</h3>
+<br/><br/>
+
+<form action="/d " method="POST">
+
+  <label for="amount"><h4>How much do you want to donate? </h4>  <label/>
+  <input type="number" name="amount" id="amount" placeholder="How much do u want to donate?"> <br/><br/>
+
+
+ 
+    <input type="text" name="backeryId" id="backeryId" value="<%=id %>" style="display:none">
+
+    <h2>You will donate to this backery</h2>
+
+    <a href="/newb/<%=id %>"> <h2><%=backery.backerysname%> </a>
+<br/>
+   
+  
+  <input type="text" name="doneatorId" id="doneatorId" value="<%=currentUser.id  %>" style="display: none">
+
+<br/><br/>
+
+  <button type="submit">donate</button>
+</form>

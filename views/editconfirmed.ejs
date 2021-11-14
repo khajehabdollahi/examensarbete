@@ -1,0 +1,16 @@
+<% layout('layout/boilerplate') %> 
+
+<form action="/editconfiremdamount/<%=donate._id %>/<%=backery.id %>?_method=PUT" method="POST">
+   <h1>You have received:<%=donate.amount %> </h1>
+   <h3> <a href="/users/<%=donate.doneatorId %>">From this person</a></h3>
+<h2> Is it is not right write the exact amount bellow?</h2>
+
+<!-- <input type="text" name="confirmation" id="confirmation" value="true"> -->
+
+<input type="number" name="confirmedAmount" id="confirmedAmount">
+
+
+  </select>
+<h2> Press the button below to Confirm</h2>
+  <button type="submit">Answer</button> <br><br>
+  </form>

@@ -1,0 +1,30 @@
+<% layout('layout/boilerplate') %> 
+
+
+ <h1>Here is the user page of: <%= user.name %>! </h1>
+ Email: <%= user.username %> <br>
+ Name: <%= user.name %> <br>
+ Role: <%= user.role %> <br>
+  Backaries: <br>
+  <% for(let backer of backery) {%> 
+  <a href="/newb/<%=backer._id%> "><%= backer.backerysname %></a> <br>
+      
+
+<% } %> 
+ 
+<br>
+ 
+<% if(currentUser && currentUser.username == user.username ) { %> 
+
+
+<a href="/newones">Register a Backery </a> <br/>
+<a href="/users/edit/<%=currentUser.id %>">تصحیح اطلاعات شخصی</a><br>
+<a href="/deleteuser/<%= currentUser.id %> ">حذف حساب من</a><br>
+<% if(!currentUser.activated) { %> 
+<br>
+
+ <h4>شما هنوز حساب خود را فعال نکرده اید</h4>
+ <h4>خواهشمند است وارد ای میل خود شده و حساب خود را فعال کنید</h4>
+<% } %> 
+<% } %> 
+
