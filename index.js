@@ -88,6 +88,8 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+// app.use(express.static(__dirname + "/public"));
+app.use("/public", express.static("public"));
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
@@ -113,35 +115,33 @@ app.get("/newones", requiredLogin, (req, res) => {
 });
 
 app.post("/newb", upload.single("image"), async (req, res) => {
-  // console.log(req.body, req.file)
   const input = req.body;
   const b = new Newbackery(input);
-        b.city = req.body.city.toLowerCase();
-        b.provience = req.body.provience.toLowerCase();
-        b.district = req.body.district.toLowerCase();
-        b.Street = req.body.Street.toLowerCase();
-        b.line = req.body.line.toLowerCase();
-        b.image = req.file.path;
-        b.creator.username = req.user.username;
-        b.creator.name = req.user.name;
-        b.creator.id = req.user.id;
+  b.city = req.body.city.toLowerCase();
+  b.provience = req.body.provience.toLowerCase();
+  b.district = req.body.district.toLowerCase();
+  b.Street = req.body.Street.toLowerCase();
+  b.line = req.body.line.toLowerCase();
+  b.image = req.file.path;
+  b.creator.username = req.user.username;
+  b.creator.name = req.user.name;
+  b.creator.id = req.user.id;
 
   await b.save();
   res.redirect("/");
 });
 app.post("/newb", upload.single("image"), async (req, res) => {
-  // console.log(req.body, req.file)
   const input = req.body;
   const b = new Newbackery(input);
-        b.city = req.body.city.toLowerCase();
-        b.provience = req.body.provience.toLowerCase();
-        b.district = req.body.district.toLowerCase();
-        b.Street = req.body.Street.toLowerCase();
-        b.line = req.body.line.toLowerCase();
-        b.image = req.file.path;
-        b.creator.username = req.user.username;
-        b.creator.name = req.user.name;
-        b.creator.id = req.user.id;
+  b.city = req.body.city.toLowerCase();
+  b.provience = req.body.provience.toLowerCase();
+  b.district = req.body.district.toLowerCase();
+  b.Street = req.body.Street.toLowerCase();
+  b.line = req.body.line.toLowerCase();
+  b.image = req.file.path;
+  b.creator.username = req.user.username;
+  b.creator.name = req.user.name;
+  b.creator.id = req.user.id;
 
   await b.save();
   res.redirect("/");
@@ -149,16 +149,10 @@ app.post("/newb", upload.single("image"), async (req, res) => {
 
 app.put("/newb/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
-
   const data = req.body;
-    
   const backery = await Newbackery.findByIdAndUpdate(id, data);
   backery.image = req.file.path;
-
-
-  console.log("IMAGE", req.file.path);
-
-  backery.save()
+  backery.save();
   res.redirect("/backeries");
 });
 
@@ -182,11 +176,11 @@ app.delete("/newb/:id", async (req, res) => {
   res.redirect("/");
 });
 
-app.get('/deleteconfirm/:id',async (req, res) => {
+app.get("/deleteconfirm/:id", async (req, res) => {
   const { id } = req.params;
-  const backery= await Newbackery.findById(id)
-  res.render('backeryDelete',{id,backery});
-})
+  const backery = await Newbackery.findById(id);
+  res.render("backeryDelete", { id, backery });
+});
 
 app.get("/new", (req, res) => {
   req.session.returnTo = req.originalUrl;
@@ -202,23 +196,22 @@ app.get("/backeries", async (req, res) => {
 app.get("/backeryimagedelete/:id", async (req, res) => {
   const { id } = req.params;
   const backery = await Newbackery.findById(id);
-  console.log(backery)
-  backery.image = req.file.path
+  backery.image = req.file.path;
   try {
     await cloudinary.v2.uploader.destroy(
-      image, { invalidate: true, resource_type: "path" }, async (error, result)=> {
-      if (error){
-        return res.status(400).json(error)
+      image,
+      { invalidate: true, resource_type: "path" },
+      async (error, result) => {
+        if (error) {
+          return res.status(400).json(error);
+        }
+        await Property.updateOne({ $pull: { pictures: img } });
+        res.json(result);
       }
-       await  Property.updateOne({$pull : { pictures: img }});
-      res.json(result)
-      })
+    );
+  } catch (e) {
+    res.status(500).json("Something went wrong");
   }
-  catch (e) {
-    res.status(500).json('Something went wrong')
-  }
-
-  console.log(backery);
 });
 
 app.get("/", (req, res) => {
@@ -242,16 +235,17 @@ app.get("/register", (req, res) => {
 
 app.post("/register", async (req, res) => {
   let username = req.body.username;
+
   let name = req.body.name;
   let role = req.body.role;
   let inputPassword = req.body.password;
-  console.log("PASSWORD: ", username)
+  console.log("PASSWORD: ", username);
   let password;
 
   if (!isValidData(inputPassword, 6)) {
     console.log("Password must be at least 6 characters without space!");
   } else {
-    password = inputPassword
+    password = inputPassword;
   }
 
   const newUser = new User({
@@ -261,7 +255,14 @@ app.post("/register", async (req, res) => {
     activated: false,
   });
 
-  await User.register(newUser, password);
+  let user = await User.findOne({ username: username });
+  const err = "User with the Email already exist!";
+  if (user) {
+    res.render("registererror", { err });
+  } else {
+    await User.register(newUser, password);
+  }
+
   // req.session.user_id = user._id;
   let { id } = await User.findOne({ username: username });
   mailer(
@@ -273,6 +274,7 @@ app.post("/register", async (req, res) => {
   res.render("registerSuccess", { newUser });
   // res.render('login', {user})
 });
+
 
 app.get("/activate/:id", async (req, res) => {
   let user = await User.findOne({ _id: req.params.id });
@@ -295,14 +297,12 @@ app.get("/users/edit/:id", async (req, res) => {
 
 app.put("/users/edit/:id", async (req, res) => {
   const { id } = await req.params;
-  console.log("id: ");
-
   const user = await User.findByIdAndUpdate(id, req.body, {
     runValidators: true,
     new: true,
   });
   user.save();
-  res.redirect('/login');
+  res.redirect("/login");
 });
 
 app.get("/deleteuser/:id", async (req, res) => {
@@ -311,7 +311,6 @@ app.get("/deleteuser/:id", async (req, res) => {
 
   res.redirect("/");
 });
-
 
 app.get("/login", async (req, res) => {
   res.render("login");
@@ -341,20 +340,12 @@ app.post("/login", async (req, res, next) => {
 });
 
 app.get("/forgetpass", (req, res) => {
-let tempid = uuid.v4();
-  res.render("foreget", {tempid});
+  let tempid = uuid.v4();
+  res.render("foreget", { tempid });
 });
 
-// app.post("/forgetpass", (req, res) => {
-//   const { username } = req.body
-//   const user = User.find({ "username": username });
-//   console.log("FOUND USER", user.name)
-// })
-
-
-  
 app.post("/forgetpass/:tempid", async (req, res) => {
-  const {tempid}=await req.params;
+  const { tempid } = await req.params;
   const { username } = req.body;
 
   await User.find({ username }, function (err, user) {
@@ -364,9 +355,11 @@ app.post("/forgetpass/:tempid", async (req, res) => {
       res.redirect("/login");
       mailerForget(
         username,
-        "Welcome to web",
-        "Yes you are very welcome now \n please activate ur account by clicking this link\n \n (http://localhost:3000/resetpass/" +
-          tempid+'/'+username
+        "Hi",
+        "Please click on below link to reset your password \n \n (http://localhost:3000/resetpass/" +
+          tempid +
+          "/" +
+          username
       );
       //Detta lokal host ska ändras till domänen
     }
@@ -375,22 +368,19 @@ app.post("/forgetpass/:tempid", async (req, res) => {
 
 //RESET PASSWORD
 app.get("/resetpass/:tempid/:username", async (req, res) => {
-  const { tempid } =await  req.params;
-  const { username } =await req.params;
-  res.render("resetpass", { tempid,username });
+  const { tempid } = await req.params;
+  const { username } = await req.params;
+  res.render("resetpass", { tempid, username });
 });
 
 app.put("/resetpass/:tempid/:username", async (req, res) => {
-  console.log("HI HI")
   const { username } = req.body;
-  console.log(username.substring(username.indexOf("/") + 1));
   const { password } = req.body;
 
   await User.findOne({ username }, (err, user) => {
     if (err) {
       res.send("Password reset Failed");
     } else {
-      console.log("USER:", user);
       user.setPassword(password, (error, returnedUser) => {
         if (error) {
           console.log(error);
@@ -398,7 +388,7 @@ app.put("/resetpass/:tempid/:username", async (req, res) => {
           returnedUser.save();
         }
       });
-      res.render('login');
+      res.render("login");
     }
   });
 });
@@ -410,107 +400,94 @@ app.get("/users", async (req, res) => {
 
 app.get("/users/:id", async (req, res) => {
   const { id } = req.params;
-  console.log("id: ", id);
   const user = await User.findById(id);
   const backery = await Newbackery.find({ "creator.id": id });
-  console.log(backery);
-  res.render("showuser", { user, backery});
+  res.render("showuser", { user, backery });
 });
 
-app.get("/donate/:id", requiredLogin,async (req, res) => {
+app.get("/donate/:id", requiredLogin, async (req, res) => {
   const { id } = req.params;
-  const backery =await Newbackery.findById(id)
- 
-  res.render("donate", { id, backery});
+  const backery = await Newbackery.findById(id);
+
+  res.render("donate", { id, backery });
 });
 
 app.get("/users/:username", async (req, res) => {
   const { username } = req.params;
-  console.log("username: ", username);
   const user = await User.findById(username);
-  console.log(user);
   res.render("showuser", { user });
 });
 
-app.get("/donate/:id",  async (req, res) => {
+app.get("/donate/:id", async (req, res) => {
   const { id } = req.params;
   const backery = await Newbackery.findById(id);
-  console.log(backery);
   res.render("donate", { id, backery });
 });
 
 app.post("/d", async (req, res) => {
-  // const donate=req.body
   const donated = new Donate(req.body);
-
   donated.backeryId = req.body.backeryId;
-  // donated.donatorsname = req.body.doneatorId;
-
   const donator = await User.findById(req.body.doneatorId);
-
   donated.donatorsname = donator.name;
   donated.date = new Date().toLocaleDateString("fa-IR");
-  
-
-
-  await donated.save();;
-
+  await donated.save();
   res.redirect("/");
-  // res.render("donated", {id, donateAmount });
 });
 
 app.get("/donateconfirm/:id/:bid", async (req, res) => {
   const { id } = req.params;
   const { bid } = req.params;
   const donate = await Donate.findById(id);
-
-  res.render("donateconfirm", { donate });
+  const backery = await Newbackery.findById(bid);
+  res.render("donateconfirm", { donate, backery });
 });
 
-app.put("/donateconfirm/:id", async (req, res) => {
+app.put("/donateconfirm/:id/:bid", async (req, res) => {
   const { id } = req.params;
+  const { bid } = req.params;
   const confirmation = req.body.confirmation;
+  const confirmedAmount =Number(req.body.confirmedAmount);
+  const donate = await Donate.findById(id);
+   donate.confirmation = confirmation;
 
-  const donate = await Donate.findByIdAndUpdate(id);
-   // donate.totalDonatedAmount = totalDonatedAmount
-  donate.confirmation = confirmation;
-  donate.save();
+  const backery = await Newbackery.findById(bid);
+
+  const newAmount = backery.totalDonatedAmount + confirmedAmount;
+
+  backery.totalDonatedAmount=newAmount;
+  backery.save()
+  donate.save()
   res.redirect(`/backeries`);
 });
 
-app.get('/editconfiremdamount/:did/:bid', async (req, res) => {
+app.get("/editconfiremdamount/:did/:bid", async (req, res) => {
   const { did } = req.params;
   const { bid } = req.params;
   const donate = await Donate.findByIdAndUpdate(did);
   const backery = await Newbackery.findById(bid);
-
-  
-  res.render('editconfirmed', { donate, backery })
+ 
+  res.render("editconfirmed", { donate, backery });
 });
 
 app.put("/editconfiremdamount/:did/:bid", async (req, res) => {
-    
   const { did } = req.params;
   const { bid } = req.params;
-const donate1 = await Donate.findById(did)
+  const donate1 = await Donate.findById(did);
   const confirmedAmount = +req.body.confirmedAmount;
   const donate = await Donate.findByIdAndUpdate(did, {
     confirmedAmount: confirmedAmount,
   });
   donate.save();
-  const backery = await Newbackery.findById(bid)
-  const newTotal= backery.totalDonatedAmount + confirmedAmount-donate1.confirmedAmount
-// backery.totalDonatedAmoun=newTotal
- const backery1 = await Newbackery.findByIdAndUpdate(bid, {
-  totalDonatedAmount:newTotal,
+  const backery = await Newbackery.findById(bid);
+  const newTotal =
+    backery.totalDonatedAmount + confirmedAmount - donate1.confirmedAmount;
+  // backery.totalDonatedAmoun=newTotal
+  const backery1 = await Newbackery.findByIdAndUpdate(bid, {
+    totalDonatedAmount: newTotal,
+  });
+  backery1.save();
+  res.redirect("/");
 });
-    backery1.save()
-  res.redirect('/')
-  
-
-});
-
-
 
 app.get("/search", (req, res) => {
   res.render("search");
@@ -521,13 +498,9 @@ app.get("/search/provience", (req, res) => {
 app.post("/search/provience", async (req, res) => {
   const input = req.body.provience;
   const search = input.toLowerCase();
-
-  console.log(search);
-
   let query = {
     $or: [{ provience: search }, { city: search }, { district: search }],
   };
-
   const backery = await Newbackery.find(query);
   res.render("resultp", { backery });
 });
@@ -538,13 +511,9 @@ app.get("/search/village", (req, res) => {
 app.post("/search/village", async (req, res) => {
   const input = req.body.vi;
   const search = input.toLowerCase();
-
-  console.log(search);
-
   let query = {
     $or: [{ village: search }],
   };
-
   const backery = await Newbackery.find(query);
   res.render("resultP", { backery });
 });
@@ -555,9 +524,6 @@ app.get("/search/street", (req, res) => {
 app.post("/search/street", async (req, res) => {
   const input = req.body.searchKey;
   const search = input.toLowerCase();
-
-  console.log(search);
-
   let query = {
     $or: [{ Street: search }, { line: search }],
   };
@@ -572,13 +538,9 @@ app.get("/search/mobilenumber", (req, res) => {
 
 app.post("/search/mobilenumber", async (req, res) => {
   const input = req.body.searchKey;
-
-  console.log(input);
-
   let query = {
     $or: [{ mobileNumber: input }, { postCode: input }],
   };
-
   const backery = await Newbackery.find(query);
   res.render("resultp", { backery });
 });
@@ -589,9 +551,6 @@ app.get("/search/economylevel", (req, res) => {
 
 app.post("/search/economylevel", async (req, res) => {
   const input = req.body.searchKey;
-
-  console.log(input);
-
   const backery = await Newbackery.find()
     .where("averageMonthlyIncomPerPerson")
     .lte(input)
@@ -604,9 +563,6 @@ app.get("/search/numberpoor", (req, res) => {
 });
 app.post("/search/numberpoor", async (req, res) => {
   const input = req.body.searchKey;
-
-  console.log(input);
-
   const backery = await Newbackery.find()
     .where("numberOfPoorPeople")
     .lte(input)

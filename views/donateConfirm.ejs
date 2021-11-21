@@ -1,28 +1,28 @@
 <% layout('layout/boilerplate') %> 
 
 
-<form action="/donateconfirm/<%=donate._id %>?_method=PUT " method="POST">
+<form action="/donateconfirm/<%=donate._id %>/<%=backery._id %>?_method=PUT " method="POST">
   
    <h2>You have received:<%=donate.amount %> </h2>
    
    <h3> <a href="/users/<%=donate.doneatorId %>">From this person</a>  </h3>
 
 <h3> Is it right?</h3>
-<h3> Press the button below to Confirm</h3>
+<h3> Press the button below to Confirm</h3>  <br>
 
-<!-- <input type="text" name="confirmation" id="confirmation" value="true"> -->
 
 
 <select name="confirmation" id="confirmation">
     <option>Did you recieve this money?</option>
     <option  value='Yes' > Yes</option>
     <option value='No' >No</option>
-    
-  </select>
-<br>
+    </select>
+<br> <br>
 
+<h3> How much did you receive?</h3> <br> <br>
+<input type="number" name="confirmedAmount" id="confirmedAmount" value="<%=donate.amount %> ">
 
-<br>
+<br> <br> 
   <button type="submit">Answer</button> <br><br>
   </form>
  

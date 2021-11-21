@@ -1,22 +1,14 @@
 <% layout('layout/boilerplate') %> 
   <h1>Here you can see all backeries</h1>
-
-  <ul style="list-style-type:none">
+  <ul style="list-style:none; text-align:center;">
     <% for(let backry of backeries) { %>
-     
-        <div class="row">
-          <div class="col-md-12">
-        <li><h2>  <a href="/newb/<%= backry.id %>"><%= backry.backerysname %></a></h2></li>    
-
-   
-
-    </li> 
-          </div>
+      <div class="row">
+        <div class="col-md-12">
+          <li>
+            <h2>  <a href="/newb/<%= backry.id %>"><%= backry.backerysname %></a></h2>
+          </li>    
         </div>
-
-   
-
+      </div>
    <%} %>
   </ul>
-  <br> <br>
   <a href="/newones"><h2> Add new Backeries</h2></a>  <br> <br>
