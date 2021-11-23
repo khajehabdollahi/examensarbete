@@ -13,10 +13,12 @@
       crossorigin="anonymous"
     />
   </head>
-  <body class="d-flex flex-column vh-100 bg-light bg-image">
+  <body class="d-flex flex-column min-vh-100 bg-light bg-image">
     <%- include('../partials/navbar') %>
     <main class="container"><%- body %></main>
-    <%- include('../partials/footer') %> %>
+    <div class="mt-auto">
+        <%- include('../partials/footer') %>
+    </div>
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

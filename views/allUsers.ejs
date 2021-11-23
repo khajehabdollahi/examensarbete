@@ -1,28 +1,14 @@
-<% layout('layout/boilerplate') %> 
-<h1>Here you can see all yousers</h1>
- <ul style="list-style-type:none">
-    <% for(let user of allUsers) { %>
-      <div class="card">
-        <div class="row">
-          <div class="col-md-12">
-  
- 
-    <li><a href="/users/<%= user.id %>"><%= user.name %></a> <br/> 
-  
-    
-    
+<% layout('layout/boilerplate') %>
 
-    
-    
-     
-  
-    <br>
-
-    </li> 
-          </div>
-        </div>
-      </div>
-   
-
-   <%} %>
-  </ul>
+<div class="row text-center text-capitalize">
+    <div class="col-md-12">
+    <h1>All Users</h1>
+    <ul style="list-style-type:none ">
+      <% for(let user of allUsers) { %>
+        <li>
+          <h4><a href="/users/<%= user.id %>"><%= user.name %></a></h4>
+        </li> 
+      <%} %>
+   </ul>
+  </div>
+</div>
