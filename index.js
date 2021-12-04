@@ -446,24 +446,32 @@ app.put("/donateconfirm/:id/:bid", async (req, res) => {
   const { id } = req.params;
   const { bid } = req.params;
   const confirmation = req.body.confirmation;
-  const confirmedAmount =Number(req.body.confirmedAmount);
-  const donate = await Donate.findById(id);
-   donate.confirmation = confirmation;
-
+  const confirmedAmount = Number(req.body.confirmedAmount);
+  const donate = await Donate.findByIdAndUpdate(id, {
+    confirmation: confirmation,
+    confirmedAmount: confirmedAmount,
+  });
+  donate.confirmation = confirmation;
+  if (donate.confirmation != "Yes" && confirmedAmount != 0) {
+    donate.save();
+    res.send("You have to confirm amount");
+  }
+  donate.confirmedAmount = confirmedAmount;
   const backery = await Newbackery.findById(bid);
 
   const newAmount = backery.totalDonatedAmount + confirmedAmount;
+  console.log("NEW AMOUNT", newAmount)
 
-  backery.totalDonatedAmount=newAmount;
-  backery.save()
-  donate.save()
+
+  await Newbackery.findByIdAndUpdate(bid, {"totalDonatedAmount":newAmount});
+  donate.save();
   res.redirect(`/backeries`);
 });
 
 app.get("/editconfiremdamount/:did/:bid", async (req, res) => {
   const { did } = req.params;
   const { bid } = req.params;
-  const donate = await Donate.findByIdAndUpdate(did);
+  const donate = await Donate.findById(did);
   const backery = await Newbackery.findById(bid);
  
   res.render("editconfirmed", { donate, backery });
@@ -472,20 +480,25 @@ app.get("/editconfiremdamount/:did/:bid", async (req, res) => {
 app.put("/editconfiremdamount/:did/:bid", async (req, res) => {
   const { did } = req.params;
   const { bid } = req.params;
-  const donate1 = await Donate.findById(did);
-  const confirmedAmount = +req.body.confirmedAmount;
-  const donate = await Donate.findByIdAndUpdate(did, {
-    confirmedAmount: confirmedAmount,
-  });
-  donate.save();
+  const donate = await Donate.findById(did);
+  donate.newConfirmedAmount = +req.body.newConfirmedAmount;
+  const g=donate.confirmedAmount
+  donate.confirmedAmount = donate.newConfirmedAmount;
+  
+  donate.save()
+
   const backery = await Newbackery.findById(bid);
-  const newTotal =
-    backery.totalDonatedAmount + confirmedAmount - donate1.confirmedAmount;
-  // backery.totalDonatedAmoun=newTotal
-  const backery1 = await Newbackery.findByIdAndUpdate(bid, {
-    totalDonatedAmount: newTotal,
-  });
-  backery1.save();
+  
+  backery.totalDonatedAmount =
+    backery.totalDonatedAmount +
+    donate.newConfirmedAmount -
+    g;
+  
+   backery.save()
+  // const backery1 = await Newbackery.findByIdAndUpdate(bid, {
+  //   totalDonatedAmount: newTotal,
+  // });
+
   res.redirect("/");
 });
 

@@ -22,7 +22,11 @@ const donateSchema = new mongoose.Schema({
   },
   confirmedAmount: {
     type: Number,
-    default: 0
+    default: 0,
+  },
+  newConfirmedAmount: {
+    type: Number,
+    
   }
 });
 
